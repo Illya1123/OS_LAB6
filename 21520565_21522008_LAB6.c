@@ -54,12 +54,33 @@ void displayArray (char arr[MAX_SIZE][MAX_SIZE], int rows , int columns)
         printf("\n");
     }
 }
+void MeNu_Input_Arr(int frame)
+{
+    do
+    {
+        printf("---- Page Replacement algorithm ----\n");
+        printf("Input page frames: ");
+        scanf("%d",&frame);
+        if( frame <= 0)
+            printf("The values is invalid. Please enter again!\n\n");
+    } while(frame <= 0 );
+}
+
+void Init_Value(char arr[MAX_SIZE][MAX_SIZE], int frame, int column)
+{
+    for(int j = 0; j < column ; ++j)
+    {
+        for(int i = 1; i <= frame; ++i)
+        {
+            arr[i][j] =' ';
+        }
+    }
+
+    printf("Successful initialization!\n\n");
+}
 
 
 int main()
 {
-
-    inputReferencedSequence();
-    displayArray(arr, 1, column);
     return 0;
 }
