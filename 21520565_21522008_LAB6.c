@@ -2,7 +2,7 @@
 #include<stdbool.h>
 #define MAX_SIZE 100
 
-int column = 0, frame = 0, page_fault = 0;
+int column = 0, frame, page_fault = 0;
 char default_ref[] = {'2','1','5','2','0','5','6','5','0','0','7'}; // MSSV là 21520565; 
 char arr[MAX_SIZE][MAX_SIZE];
 
@@ -27,23 +27,21 @@ void inputReferencedSequence() {
     }
     else {
         // cho vòng lặp để người dùng tự nhập vào chuỗi tham chiếu của mình 
-        printf("Enter the number of pages: ");
-        scanf("%d", &column);
+        char temp = getc(stdin); // xóa kí tự xuống hàng đầu tiên
         printf("Enter your referenced sequence: ");
-        int i = 0;
-        while(i < column)
+        char ch = NULL;
+        while(ch != '\n')
         {
-            char ch;
             scanf("%c", &ch);
             if(ch != ' ' && ch != '\n')
             {
-                arr[0][i++] = ch;
+                arr[0][column++] = ch;
             }
         }
     }
 }
 
-void displayArray ()
+void displayArray()
 {
     for(int i  = 0; i < frame + 2 ; i++)
     {
@@ -95,7 +93,7 @@ void Init_Value()
     }
 }
 
-// move the values of previous frame into current frame
+// move the values of previous column into current column
 void copy_preColumn(int cur_col)
 {
     for(int i = 1; i <= frame; ++i)
@@ -105,12 +103,12 @@ void copy_preColumn(int cur_col)
 }
 
 // check the values is in frames?
-bool Check_Exists_Page(int cur_col)
+bool Check_Exists_Page(int cur_col, char value)
 {
     // trả về false nếu có lỗi trang
     for(int i = 1; i <= frame; ++i)
     {
-        if(arr[i][cur_col] == arr[0][cur_col])
+        if(arr[i][cur_col] == value)
             return true;
     }
     return false;
@@ -132,7 +130,7 @@ void FIFO() {
             // copy giá trị của cột trước gán cho cột hiên tại
             copy_preColumn(i);
             // kiểm tra giá trị page hiện tại có nằm trong các frame hay không
-            if(!Check_Exists_Page(i))
+            if(!Check_Exists_Page(i, arr[0][i]))
             {
                 arr[pos++][i] = arr[0][i];
                 arr[frame+1][i] = '*';
@@ -143,7 +141,6 @@ void FIFO() {
         }        
     }
 }
-
 
 
 int main()
@@ -163,6 +160,7 @@ int main()
         }
         case 3:
         {   
+            LRU();
             break;
         }        
         default:
