@@ -114,6 +114,14 @@ bool Check_Exists_Page(int cur_col, char value)
     return false;
 }
 
+bool isCheckedPage(char checkpage[MAX_SIZE], char page, int num)
+{
+    for(int i = 0; i < num ; i++)
+        if(checkpage[i] == page)
+            return true;
+    return false;
+}
+
 void FIFO() {
     int pos = 1;
     for(int i = 0; i < column ; i++)
@@ -142,6 +150,65 @@ void FIFO() {
     }
 }
 
+void LRU() {
+    char pageReplace = ' ';
+    int count = 0;
+    for(int i = 0; i < column ; i++)
+    {
+        if(i == 0) // xử lí riêng trang đầu tiên
+        {
+            // trang đầu tiên chắc chắn có lỗi trang
+            page_fault++;
+            arr[1][i] = arr[0][i];
+            arr[frame+1][i] = '*';
+        }
+        else {
+            copy_preColumn(i);
+            //kiểm tra lỗi trang
+            if(!Check_Exists_Page(i , arr[0][i]))
+            {
+                char checkedpage[MAX_SIZE];
+                int num = 0;
+
+                if(i < frame)
+                {
+                    arr[i+1][i] = arr[0][i];
+                }
+                else {
+                    // tìm đến trang lâu nhất chưa sử dụng 
+                    for(int j = i - 1 ; j >= 0 ; j--)
+                    {
+                        if(!isCheckedPage(checkedpage, arr[0][j], num) && Check_Exists_Page(i, arr[0][j]))
+                        {
+                            pageReplace = arr[0][j];
+                            count++;
+                            checkedpage[num++] = arr[0][j];
+                        }
+                        if(count == frame)
+                            break;
+                    } 
+
+                    // duyệt trong các frame hiện tại để tìm ra trang thay thế 
+                    for(int f = 1; f <= frame ; f++)
+                    {
+                        if(arr[f][i] == pageReplace)
+                        {
+                            arr[f][i] = arr[0][i];
+                            break;
+                        }
+                    }                 
+                }
+
+                arr[frame+1][i] = '*';
+                count = 0;     
+                pageReplace = ' ';  
+                num = 0;   
+                page_fault++;
+            }
+        }
+    }
+}
+
 
 int main()
 {
@@ -151,7 +218,6 @@ int main()
         case 1:
         {
             FIFO();
-            //printf("")
             break;
         }
         case 2:
