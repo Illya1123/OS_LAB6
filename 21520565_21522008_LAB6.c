@@ -29,7 +29,7 @@ void inputReferencedSequence() {
         // cho vòng lặp để người dùng tự nhập vào chuỗi tham chiếu của mình 
         char temp = getc(stdin); // xóa kí tự xuống hàng đầu tiên
         printf("Enter your referenced sequence: ");
-        char ch = NULL;
+        char ch = ' ';
         while(ch != '\n')
         {
             scanf("%c", &ch);
@@ -168,8 +168,7 @@ void LRU() {
             if(!Check_Exists_Page(i , arr[0][i]))
             {
                 char checkedpage[MAX_SIZE];
-                int num = 0;
-
+                
                 if(i < frame)
                 {
                     arr[i+1][i] = arr[0][i];
@@ -178,11 +177,10 @@ void LRU() {
                     // tìm đến trang lâu nhất chưa sử dụng 
                     for(int j = i - 1 ; j >= 0 ; j--)
                     {
-                        if(!isCheckedPage(checkedpage, arr[0][j], num) && Check_Exists_Page(i, arr[0][j]))
+                        if(!isCheckedPage(checkedpage, arr[0][j], count) && Check_Exists_Page(i, arr[0][j]))
                         {
                             pageReplace = arr[0][j];
-                            count++;
-                            checkedpage[num++] = arr[0][j];
+                            checkedpage[count++] = arr[0][j];
                         }
                         if(count == frame)
                             break;
@@ -201,14 +199,82 @@ void LRU() {
 
                 arr[frame+1][i] = '*';
                 count = 0;     
-                pageReplace = ' ';  
-                num = 0;   
+                pageReplace = ' ';                  
                 page_fault++;
             }
         }
     }
 }
 
+void OPT() {
+    char pageReplace = ' ';
+    int count = 0;
+    for(int i = 0; i < column ; i++)
+    {
+        if(i == 0) // xử lí riêng trang đầu tiên
+        {
+            // trang đầu tiên chắc chắn có lỗi trang
+            page_fault++;
+            arr[1][i] = arr[0][i];
+            arr[frame+1][i] = '*';
+        }
+        else {
+            copy_preColumn(i);
+            //kiểm tra lỗi trang
+            if(!Check_Exists_Page(i , arr[0][i]))
+            {
+                char checkedpage[MAX_SIZE];
+                
+                if(i < frame)
+                {
+                    arr[i+1][i] = arr[0][i];
+                }
+                else {
+                    // tìm đến trang còn lâu mới sử dụng
+                    for(int j = i + 1 ; j < column; j++)
+                    {
+                        if(!isCheckedPage(checkedpage, arr[0][j], count) && Check_Exists_Page(i, arr[0][j]))
+                        {
+                            pageReplace = arr[0][j];
+                            checkedpage[count++] = arr[0][j];
+                        }
+                        if(count == frame)
+                            break;
+                    } 
+
+                    // xảy ra trường hợp là một trang không còn được sử dụng nữa 
+                    if(count != frame)
+                    {
+                        for(int f = 1; f <= frame ; f++)
+                        {
+                            if(!isCheckedPage(checkedpage, arr[f][i], count))
+                            {
+                                arr[f][i] = arr[0][i];
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                           // duyệt trong các frame hiện tại để tìm ra trang thay thế 
+                        for(int f = 1; f <= frame ; f++)
+                        {
+                            if(arr[f][i] == pageReplace)
+                            {
+                                arr[f][i] = arr[0][i];
+                                break;
+                            }
+                        }         
+                    }                         
+                }
+
+                arr[frame+1][i] = '*';
+                count = 0;     
+                pageReplace = ' ';                  
+                page_fault++;
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -222,6 +288,7 @@ int main()
         }
         case 2:
         {
+            OPT();
             break;
         }
         case 3:
