@@ -114,6 +114,16 @@ bool Check_Exists_Page(int cur_col, char value)
     return false;
 }
 
+bool Is_Null(int cur_col)
+{
+    for(int i = 1; i <= frame; ++i)
+    {
+        if(arr[i][cur_col] == ' ')
+        return true;
+    }
+    return false;
+}
+
 bool isCheckedPage(char checkpage[MAX_SIZE], char page, int num)
 {
     for(int i = 0; i < num ; i++)
@@ -173,6 +183,18 @@ void LRU() {
                 {
                     arr[i+1][i] = arr[0][i];
                 }
+
+                else if((i >= frame) && Is_Null(i))
+                {  
+                    for(int j = 1; j <= frame ; j++)
+                    {  
+                        if(arr[j][i] == ' ')
+                        {
+                            arr[j][i] = arr[0][i];
+                        }
+                    }
+                }
+            
                 else {
                     // tìm đến trang lâu nhất chưa sử dụng 
                     for(int j = i - 1 ; j >= 0 ; j--)
@@ -229,10 +251,20 @@ void OPT() {
                 {
                     arr[i+1][i] = arr[0][i];
                 }
+                else if((i >= frame) && Is_Null(i))
+                {  
+                    for(int j = 1; j <= frame ; j++)
+                    {  
+                        if(arr[j][i] == ' ')
+                        {
+                            arr[j][i] = arr[0][i];
+                        }
+                    }
+                }
                 else {
                     // tìm đến trang còn lâu mới sử dụng
                     for(int j = i + 1 ; j < column; j++)
-                    {
+                    {   
                         if(!isCheckedPage(checkedpage, arr[0][j], count) && Check_Exists_Page(i, arr[0][j]))
                         {
                             pageReplace = arr[0][j];
@@ -258,7 +290,7 @@ void OPT() {
                            // duyệt trong các frame hiện tại để tìm ra trang thay thế 
                         for(int f = 1; f <= frame ; f++)
                         {
-                            if(arr[f][i] == pageReplace)
+                            if(arr[f][i] == pageReplace || arr[f][i] == ' ')
                             {
                                 arr[f][i] = arr[0][i];
                                 break;
